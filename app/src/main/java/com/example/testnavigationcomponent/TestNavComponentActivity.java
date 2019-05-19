@@ -3,15 +3,20 @@ package com.example.testnavigationcomponent;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.testnavigationcomponent.fragments.OnActivityInteractionToFragmentListener;
 import com.example.testnavigationcomponent.fragments.OnFragmentInteractionListener;
 import com.example.testnavigationcomponent.utils.ConstantsUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,18 +33,39 @@ public class TestNavComponentActivity extends AppCompatActivity implements OnFra
     @BindView(R.id.base_view)
     CoordinatorLayout mBaseView;
 
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+
     NavController mNavController;
     private static final String TAG = "MainActivityLogData";
     private boolean isBackPressed = false;
 
+    private Context mContext;
+    private OnActivityInteractionToFragmentListener mListener;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //mListener = null;
+    }
+
+    public void onButtonPressed(String data) {
+        if (mListener != null) {
+            mListener.onActivityInteraction(data);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_nav_component);
+        mContext = TestNavComponentActivity.this;
+
         ButterKnife.bind(this);
 
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
+        setSupportActionBar(mToolbar);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -139,5 +165,39 @@ public class TestNavComponentActivity extends AppCompatActivity implements OnFra
             if (isFromNext)
                 detectAndSetBottomNavState();
         }
+    }
+
+    @Override
+    public void onFragmentStarted(Fragment context, Bundle data) {
+        if (context instanceof OnActivityInteractionToFragmentListener) {
+            mListener = (OnActivityInteractionToFragmentListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + "'s fragments must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onFragmentStop(Fragment context, Bundle data) {
+        mListener = null;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.send_to_fragment_menu:
+                Bundle bundle = new Bundle();
+                bundle.putString("This is Data from Activity", ConstantsUtils.dataFromActivity);
+                onButtonPressed("This is Data from Activity");
+                return true;
+        }
+
+        return true;
     }
 }

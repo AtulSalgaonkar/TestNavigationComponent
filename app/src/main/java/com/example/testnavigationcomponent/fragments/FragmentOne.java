@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +28,7 @@ import butterknife.ButterKnife;
  * create an instance of this fragment.
  */
 
-public class FragmentOne extends Fragment {
+public class FragmentOne extends Fragment implements OnActivityInteractionToFragmentListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -43,6 +44,8 @@ public class FragmentOne extends Fragment {
 
     @BindView(R.id.btn_next_one)
     Button mBtnNextOne;
+
+    private Context mContext;
 
     private OnFragmentInteractionListener mListener;
 
@@ -71,6 +74,7 @@ public class FragmentOne extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mListener.onFragmentStarted(this, null);
         mBtnOne.setOnClickListener(v -> {
             Bundle data = new Bundle();
             data.putString(ConstantsUtils.data, "Fragment One");
@@ -84,6 +88,11 @@ public class FragmentOne extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mListener.onFragmentStop(this, null);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,6 +106,7 @@ public class FragmentOne extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mContext = getActivity();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_one, container, false);
         ButterKnife.bind(this, view);
@@ -125,5 +135,13 @@ public class FragmentOne extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onActivityInteraction(String data) {
+        if (data != null) {
+            // String dataFromActivity = data.getString(ConstantsUtils.dataFromActivity,"No Data");
+            Toast.makeText(mContext, "Fragment 1: " + data, Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -1,6 +1,9 @@
 package com.example.testnavigationcomponent.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * This interface must be implemented by activities that contain this
@@ -15,4 +18,8 @@ import android.os.Bundle;
 public interface OnFragmentInteractionListener {
     // TODO: Update argument type and name
     void onFragmentInteraction(Bundle data);
+
+    void onFragmentStarted(Fragment context, Bundle data);
+
+    void onFragmentStop(Fragment context, Bundle data);
 }

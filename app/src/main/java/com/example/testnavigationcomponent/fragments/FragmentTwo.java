@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +18,7 @@ import com.example.testnavigationcomponent.utils.ConstantsUtils;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FragmentTwo extends Fragment {
+public class FragmentTwo extends Fragment implements OnActivityInteractionToFragmentListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,6 +33,8 @@ public class FragmentTwo extends Fragment {
     Button mBtnTwo;
 
     private OnFragmentInteractionListener mListener;
+
+    private Context mContext;
 
     public FragmentTwo() {
         // Required empty public constructor
@@ -67,6 +70,7 @@ public class FragmentTwo extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mListener.onFragmentStarted(this, null);
 
         Bundle dataFromOne = getArguments();
 
@@ -86,8 +90,15 @@ public class FragmentTwo extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mListener.onFragmentStop(this, null);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mContext = getActivity();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_two, container, false);
         ButterKnife.bind(this, view);
@@ -118,4 +129,11 @@ public class FragmentTwo extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onActivityInteraction(String data) {
+        if (data != null) {
+            // String dataFromActivity = data.getString(ConstantsUtils.dataFromActivity,"No Data");
+            Toast.makeText(mContext, "Fragment 2: " + data, Toast.LENGTH_SHORT).show();
+        }
+    }
 }
